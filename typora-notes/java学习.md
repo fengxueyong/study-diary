@@ -1871,9 +1871,11 @@ synchonized作用的对象上有一个monitor锁（或内置锁），通过monit
 2. 如果 synchronized 关键字适合你的程序， 那么请尽量使用它，这样可以减少编写代码的数量，减少出错的概率。因为一旦忘记在 finally 里 unlock，代码可能会出很大的问题，而使用 synchronized 更安全。
 3. 如果特别需要 Lock 的特殊功能，比如尝试获取锁、可中断、超时功能等，才使用 Lock。
 
-### lock接口
+### Lock和Lock接口
 
-#### Lock.lock()
+#### lock接口
+
+##### Lock.lock()
 
 ```java
 //  Lock 并不是用来代替 synchronized 的，而是当使用 synchronized 不合适或不足以满足要求的时候，
@@ -1892,7 +1894,7 @@ public interface Lock {
 }
 ```
 
-##### 最佳实践
+###### 最佳实践
 
 ```java
 Lock lock = ...;
@@ -1909,7 +1911,7 @@ lock不能被中断，，这会带来很大的隐患：一旦陷入死锁，lock
 
 
 
-#### Lock.lockInterruptibly()
+##### Lock.lockInterruptibly()
 
 ```java
 public interface Lock {
@@ -1925,7 +1927,7 @@ public interface Lock {
 }
 ```
 
-##### 最佳实践
+###### 最佳实践
 
 ```java
     public void lockInterruptibly() {
@@ -1943,7 +1945,7 @@ public interface Lock {
 
 ```
 
-#### Lock.tryLock()
+##### Lock.tryLock()
 
 ```java
 public interface Lock {
@@ -1960,7 +1962,7 @@ public interface Lock {
 }
 ```
 
-##### 典型代码实践
+###### 典型代码实践
 
 ```java
     public void tryLock(Lock lock1, Lock lock2) throws InterruptedException {
@@ -1991,7 +1993,7 @@ public interface Lock {
 
 ```
 
-#### Lock.tryLock(long time, TimeUnit unit)
+##### Lock.tryLock(long time, TimeUnit unit)
 
 ```java
 public interface Lock {
@@ -2009,11 +2011,90 @@ public interface Lock {
 }
 ```
 
-#### Lock.unlock()
+##### Lock.unlock()
 
 用于解锁的，u方法比较简单，对于 ReentrantLock 而言，执行 unlock() 的时候，内部会把锁的“被持有计数器”减 1，直到减到 0 就代表当前这把锁已经完全释放了，如果减 1 后计数器不为 0，说明这把锁之前被“重入”了，那么锁并没有真正释放，仅仅是减少了持有的次数。unlock总是在finally块中使用
 
+#### Lock的实现原理
 
+基于AQS（AbstractQueuedSynchonizer）实现，Lock是接口。
+
+主要实现类有ReentrantLock可重入锁，和ReentrantReadWriteLock（简称RRW，读写锁分离设计）
+
+##### ReentrantLock
+
+如下是ReentrantLock获取锁的流程：
+
+<img src="java学习.assets/222196b8c410ff4ffca7131faa19d833.jpg" alt="img" style="zoom:50%;" />
+
+注意，AQS中获取锁都是使用的CAS操作。
+
+AQS 类结构中包含一个基于链表实现的等待队列（CLH 队列），用于存储所有阻塞的线程，AQS 中还有一个 state 变量，该变量对 ReentrantLock 来说表示加锁状态。
+
+##### 锁分离优化lock同步锁-RRW
+
+也就是ReentrantLock是互斥锁，也就是读写不分的。在某些场景下满足不了需求，比如读多写少的场景，如果应用场景中对某个共享变量读多写少，大部分都是读而没有写，我就可以让多个线程同时读，在读写、写写同步的时候才进行互斥就会有更好的并发行，较少竞争。
+
+这个时候就有了ReentrantReadWriteLock（RRW）。
+
+RRW有两把锁，一个读锁（ReadLock），一个写锁（WriteLock）。在代码实现上是通过一个int变量的低16位和高16位存储两个锁状态的方式实现的。读锁不是独占的，可以多个线程同时拥有，
+
+###### 一个线程尝试获取写锁时：
+
+<img src="java学习.assets/1bba37b281d83cdf0c51095f473001d1.jpg" alt="img" style="zoom:50%;" />
+
+###### 一个线程尝试获取读锁时：
+
+<img src="java学习.assets/52e77acc6999efbdf4113daaa5918d46.jpeg" alt="img" style="zoom:50%;" />
+
+以下为一个例子：
+
+```java
+
+public class TestRTTLock {
+
+  private double x, y;
+
+  private ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+  // 读锁
+  private Lock readLock = lock.readLock();
+  // 写锁
+  private Lock writeLock = lock.writeLock();
+
+  public double read() {
+    //获取读锁
+    readLock.lock();
+    try {
+      return Math.sqrt(x * x + y * y);
+    } finally {
+      //释放读锁
+      readLock.unlock();
+    }
+  }
+
+  public void move(double deltaX, double deltaY) {
+    //获取写锁
+    writeLock.lock();
+    try {
+      x += deltaX;
+      y += deltaY;
+    } finally {
+      //释放写锁
+      writeLock.unlock();
+    }
+  }
+}
+```
+
+
+
+##### RRW再优化-StampedLock
+
+RRW在读多写少的情况下可能陷入线程饥饿问题，也就是说写入线程会因迟迟无法竞争到锁而一直处于等待状态。
+
+在 JDK1.8 中，Java 提供了 StampedLock 类解决了这个问题。StampedLock 不是基于 AQS 实现的，但实现的原理和 AQS 是一样的，都是基于队列和锁状态实现的。与 RRW 不一样的是，StampedLock 控制锁有三种模式: 写、悲观读以及乐观读，
+
+但是StampedLock不支持重入，不支持条件变量，因此用的人不多
 
 ### 公平锁和非公平所
 
@@ -2047,7 +2128,11 @@ public interface Lock {
 
 ### 自旋锁【暂未细看】
 
-### JVM对锁的优化
+### JVM对synchronized锁的优化
+
+#### JDK 1.6之前版本锁的缺点
+
+1. 重量级锁，底层是用操作系统的mutex lock实现的同步，每次释放和获取锁都会带来用户态和内核态的切换，从而增加系统开销
 
 相比于 JDK 1.5，在 JDK 1.6 中 HotSopt 虚拟机对 synchronized 内置锁的性能进行了很多优化，包括自适应的自旋、锁消除、锁粗化、偏向锁、轻量级锁等。有了这些优化措施后，synchronized 锁的性能得到了大幅提高，下面我们分别介绍这些具体的优化。
 
@@ -3165,7 +3250,7 @@ LongAdder 只提供了 add、increment 等简单的方法，适合的是统计�
 
 
 
-
+## 上下文切换
 
 
 
