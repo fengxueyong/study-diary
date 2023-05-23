@@ -1256,6 +1256,8 @@ himBH
 
 
 
+## 软件安装：源代码和Tarball
+
 
 
 ## 软件安装rPM，SRPM，YUM
