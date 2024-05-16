@@ -19,7 +19,7 @@
    ```
    FROM centos:7
    #作者
-   MAINTAINER shiwei
+   MAINTAINER fengxueyong
    
    #ADD 把java添加到容器中指定位置，
    #语法：ADD <src>... <dest>
@@ -56,11 +56,11 @@
    MAINTAINER lqzhang
    
    # 挂载目录
-   VOLUME /home/intple
+   VOLUME /home/fxy
    # 创建目录
-   RUN mkdir -p /home/intple
+   RUN mkdir -p /home/fxy
    # 指定路径
-   WORKDIR /home/intple
+   WORKDIR /home/fxy
    
    EXPOSE 10086
    
@@ -74,34 +74,34 @@
    ```yaml
    version: '3.7'
    services:
-     intple-cloud-gateway:
+     fengxueyong-cloud-gateway:
        build:
          # Dokcerfile文件所在的位置
          context: gateway
          dockerfile: Dockerfile
        ports:
-         - ${intple_cloud_gateway_port:-38282}:8282
+         - ${fengxueyong_cloud_gateway_port:-38282}:8282
        restart: always
        volumes:
          - /etc/localtime:/etc/localtime
-         - ./gateway/target/intple-cloud-gateway.jar:/home/intple/intple-cloud-gateway.jar
+         - ./gateway/target/fengxueyong-cloud-gateway.jar:/home/fengxueyong/fengxueyong-cloud-gateway.jar
        environment:
          - JAVA_OPTS=-Xmx1024M -Xms256M
        networks:
          dfone_net:
-           ipv4_address: ${intple_cloud_gateway_default:-124.81.64.31}
+           ipv4_address: ${fengxueyong_cloud_gateway_default:-124.81.64.31}
        extra_hosts:
-         - intple-cloud-db:${db_address:-124.81.62.1}
-       command: ["java", "-Xmx1024M","-Xms256M","-jar", "intple-cloud-gateway.jar"]
-     intple-cloud-file:
+         - fengxueyong-cloud-db:${db_address:-124.81.62.1}
+       command: ["java", "-Xmx1024M","-Xms256M","-jar", "fengxueyong-cloud-gateway.jar"]
+     fengxueyong-cloud-file:
        build:
          # Dokcerfile文件所在的位置
          context: file
          dockerfile: Dockerfile
        volumes:
          - /etc/localtime:/etc/localtime
-         - ./file/target/intple-cloud-file.jar:/home/intple/intple-cloud-file.jar
-         - ./file/uploadPath:/home/intple/uploadPath
+         - ./file/target/fengxueyong-cloud-file.jar:/home/fengxueyong/fengxueyong-cloud-file.jar
+         - ./file/uploadPath:/home/fengxueyong/uploadPath
        environment:
          - JAVA_OPTS=-Xmx1024M -Xms256M
        ports:
@@ -111,11 +111,11 @@
        restart: always
        networks:
          dfone_net:
-           ipv4_address: ${intple_cloud_file_default:-124.81.64.36}
+           ipv4_address: ${fengxueyong_cloud_file_default:-124.81.64.36}
        extra_hosts:
-         - intple-cloud-db:${db_address:-124.81.62.1}
-       command: ["java", "-Xmx1024M","-Xms256M","-jar", "intple-cloud-file.jar"]
-     intple-cloud-nginx:
+         - fengxueyong-cloud-db:${db_address:-124.81.62.1}
+       command: ["java", "-Xmx1024M","-Xms256M","-jar", "fengxueyong-cloud-file.jar"]
+     fengxueyong-cloud-nginx:
        #build:
          #context: nginx
        image: nginx:latest
@@ -124,17 +124,17 @@
        restart: always
        networks:
          dfone_net:
-           ipv4_address: ${intple_cloud_nginx_default:-124.81.64.10}
+           ipv4_address: ${fengxueyong_cloud_nginx_default:-124.81.64.10}
        volumes:
-         - ./nginx/projects:/home/intple/projects
+         - ./nginx/projects:/home/fengxueyong/projects
          - ./nginx/conf/nginx.conf:/etc/nginx/nginx.conf
          - ./nginx/logs:/var/log/nginx
          - ./nginx/conf.d:/etc/nginx/conf.d
        depends_on:
-         - intple-cloud-gateway
+         - fengxueyong-cloud-gateway
        links:
-         - intple-cloud-gateway
-     intple-cloud-auth:
+         - fengxueyong-cloud-gateway
+     fengxueyong-cloud-auth:
        build:
          # Dokcerfile文件所在的位置
          context: auth
@@ -144,14 +144,14 @@
          - JAVA_OPTS=-Xmx1024M -Xms256M
        volumes:
          - /etc/localtime:/etc/localtime
-         - ./auth/target/intple-cloud-auth.jar:/home/intple/intple-cloud-auth.jar
+         - ./auth/target/fengxueyong-cloud-auth.jar:/home/fengxueyong/fengxueyong-cloud-auth.jar
        networks:
          dfone_net:
-           ipv4_address: ${intple_cloud_auth_default:-124.81.64.32}
+           ipv4_address: ${fengxueyong_cloud_auth_default:-124.81.64.32}
        extra_hosts:
-         - intple-cloud-db:${db_address:-124.81.62.1}
-       command: ["java", "-Xmx1024M","-Xms256M","-jar", "intple-cloud-auth.jar"]
-     intple-cloud-system:
+         - fengxueyong-cloud-db:${db_address:-124.81.62.1}
+       command: ["java", "-Xmx1024M","-Xms256M","-jar", "fengxueyong-cloud-auth.jar"]
+     fengxueyong-cloud-system:
        build:
          # Dokcerfile文件所在的位置
          context: system
@@ -161,14 +161,14 @@
          - JAVA_OPTS=-Xmx1024M -Xms256M
        volumes:
          - /etc/localtime:/etc/localtime
-         - ./system/target/intple-cloud-system.jar:/home/intple/intple-cloud-system.jar
+         - ./system/target/fengxueyong-cloud-system.jar:/home/fengxueyong/fengxueyong-cloud-system.jar
        networks:
          dfone_net:
-           ipv4_address: ${intple_cloud_system_default:-124.81.64.34}
+           ipv4_address: ${fengxueyong_cloud_system_default:-124.81.64.34}
        extra_hosts:
-         - intple-cloud-db:${db_address:-124.81.62.1}
-       command: ["java", "-Xmx1024M","-Xms256M","-jar", "intple-cloud-system.jar"]
-     intple-cloud-job:
+         - fengxueyong-cloud-db:${db_address:-124.81.62.1}
+       command: ["java", "-Xmx1024M","-Xms256M","-jar", "fengxueyong-cloud-system.jar"]
+     fengxueyong-cloud-job:
        build:
          # Dokcerfile文件所在的位置
          context: job
@@ -178,14 +178,14 @@
          - JAVA_OPTS=-Xmx1024M -Xms256M
        volumes:
          - /etc/localtime:/etc/localtime
-         - ./job/target/intple-cloud-job.jar:/home/intple/intple-cloud-job.jar
+         - ./job/target/fengxueyong-cloud-job.jar:/home/fengxueyong/fengxueyong-cloud-job.jar
        networks:
          dfone_net:
-           ipv4_address: ${intple_cloud_job_default:-124.81.64.35}
+           ipv4_address: ${fengxueyong_cloud_job_default:-124.81.64.35}
        extra_hosts:
-         - intple-cloud-db:${db_address:-124.81.62.1}
-       command: ["java", "-Xmx1024M","-Xms256M","-jar", "intple-cloud-job.jar"]
-     intple-cloud-codegen:
+         - fengxueyong-cloud-db:${db_address:-124.81.62.1}
+       command: ["java", "-Xmx1024M","-Xms256M","-jar", "fengxueyong-cloud-job.jar"]
+     fengxueyong-cloud-codegen:
        build:
          # Dokcerfile文件所在的位置
          context: codegen
@@ -195,14 +195,14 @@
          - JAVA_OPTS=-Xmx1024M -Xms256M
        volumes:
          - /etc/localtime:/etc/localtime
-         - ./codegen/target/intple-cloud-codegen.jar:/home/intple/intple-cloud-codegen.jar
+         - ./codegen/target/fengxueyong-cloud-codegen.jar:/home/fengxueyong/fengxueyong-cloud-codegen.jar
        networks:
          dfone_net:
-           ipv4_address: ${intple_cloud_codegen_default:-124.81.64.37}
+           ipv4_address: ${fengxueyong_cloud_codegen_default:-124.81.64.37}
        extra_hosts:
-         - intple-cloud-db:${db_address:-124.81.62.1}
-       command: ["java", "-Xmx1024M","-Xms256M","-jar", "intple-cloud-codegen.jar"]
-     intple-cloud-backend:
+         - fengxueyong-cloud-db:${db_address:-124.81.62.1}
+       command: ["java", "-Xmx1024M","-Xms256M","-jar", "fengxueyong-cloud-codegen.jar"]
+     fengxueyong-cloud-backend:
        build:
          # Dokcerfile文件所在的位置
          context: backend
@@ -212,15 +212,15 @@
          - JAVA_OPTS=-Xmx2048M -Xms1024M
        networks:
          dfone_net:
-           ipv4_address: ${intple_cloud_backend_default:-124.81.64.38}
+           ipv4_address: ${fengxueyong_cloud_backend_default:-124.81.64.38}
        volumes:
          - /etc/localtime:/etc/localtime
-         - ./backend/target/intple-cloud-backend.jar:/home/intple/intple-cloud-backend.jar
-         #- ./backend/target/idsone.lic:/home/intple/idsone.lic
+         - ./backend/target/fengxueyong-cloud-backend.jar:/home/fengxueyong/fengxueyong-cloud-backend.jar
+         #- ./backend/target/idsone.lic:/home/fengxueyong/idsone.lic
        extra_hosts:
-         - intple-cloud-db:${db_address:-124.81.64.1}
-       command: ["java", "-Xmx2048M","-Xms1024M","-jar", "intple-cloud-backend.jar"]
-     # intple-cloud-dataaccess:
+         - fengxueyong-cloud-db:${db_address:-124.81.64.1}
+       command: ["java", "-Xmx2048M","-Xms1024M","-jar", "fengxueyong-cloud-backend.jar"]
+     # fengxueyong-cloud-dataaccess:
      #   build:
      #     # Dokcerfile文件所在的位置
      #     context: dataaccess
@@ -230,15 +230,15 @@
      #     - JAVA_OPTS=-Xmx2048M -Xms1024M
      #   networks:
      #     dfone_net:
-     #       ipv4_address: ${intple_cloud_dataaccess_default:-124.81.64.39}
+     #       ipv4_address: ${fengxueyong_cloud_dataaccess_default:-124.81.64.39}
      #   volumes:
      #     - /etc/localtime:/etc/localtime
-     #     - ./dataaccess/target/intple-cloud-dataaccess.jar:/home/intple/intple-cloud-dataaccess.jar
-     #     #- ./dataaccess/target/idsone.lic:/home/intple/idsone.lic
+     #     - ./dataaccess/target/fengxueyong-cloud-dataaccess.jar:/home/fengxueyong/fengxueyong-cloud-dataaccess.jar
+     #     #- ./dataaccess/target/idsone.lic:/home/fengxueyong/idsone.lic
      #   extra_hosts:
-     #     - intple-cloud-db:${db_address:-124.81.64.1}
-     #   command: ["java", "-Xmx2048M","-Xms1024M","-jar", "intple-cloud-dataaccess.jar"]
-     intple-cloud-dataservice1:
+     #     - fengxueyong-cloud-db:${db_address:-124.81.64.1}
+     #   command: ["java", "-Xmx2048M","-Xms1024M","-jar", "fengxueyong-cloud-dataaccess.jar"]
+     fengxueyong-cloud-dataservice1:
        build:
          # Dokcerfile文件所在的位置
          context: dataservice
@@ -248,15 +248,15 @@
          - JAVA_OPTS=-Xmx2048M -Xms1024M
        networks:
          dfone_net:
-           ipv4_address: ${intple_cloud_dataservice_1:-124.81.64.40}
+           ipv4_address: ${fengxueyong_cloud_dataservice_1:-124.81.64.40}
        volumes:
          - /etc/localtime:/etc/localtime
-         - ./dataservice/target/intple-cloud-dataservice.jar:/home/intple/intple-cloud-dataservice.jar
-         - ./dataservice/target/dfone.lic:/home/intple/dfone.lic
+         - ./dataservice/target/fengxueyong-cloud-dataservice.jar:/home/fengxueyong/fengxueyong-cloud-dataservice.jar
+         - ./dataservice/target/dfone.lic:/home/fengxueyong/dfone.lic
        extra_hosts:
-         - intple-cloud-db:${db_address:-124.81.64.1}
-       command: ["java", "-Xmx2048M","-Xms1024M","-jar", "intple-cloud-dataservice.jar"]
-     intple-cloud-dataservice2:
+         - fengxueyong-cloud-db:${db_address:-124.81.64.1}
+       command: ["java", "-Xmx2048M","-Xms1024M","-jar", "fengxueyong-cloud-dataservice.jar"]
+     fengxueyong-cloud-dataservice2:
        build:
          # Dokcerfile文件所在的位置
          context: dataservice
@@ -266,15 +266,15 @@
          - JAVA_OPTS=-Xmx2048M -Xms1024M
        networks:
          dfone_net:
-           ipv4_address: ${intple_cloud_dataservice_2:-124.81.64.41}
+           ipv4_address: ${fengxueyong_cloud_dataservice_2:-124.81.64.41}
        volumes:
          - /etc/localtime:/etc/localtime
-         - ./dataservice/target/intple-cloud-dataservice.jar:/home/intple/intple-cloud-dataservice.jar
-         - ./dataservice/target/dfone.lic:/home/intple/dfone.lic
+         - ./dataservice/target/fengxueyong-cloud-dataservice.jar:/home/fengxueyong/fengxueyong-cloud-dataservice.jar
+         - ./dataservice/target/dfone.lic:/home/fengxueyong/dfone.lic
        extra_hosts:
-         - intple-cloud-db:${db_address:-124.81.64.1}
-       command: ["java", "-Xmx2048M","-Xms1024M","-jar", "intple-cloud-dataservice.jar"]
-     intple-cloud-dataservice3:
+         - fengxueyong-cloud-db:${db_address:-124.81.64.1}
+       command: ["java", "-Xmx2048M","-Xms1024M","-jar", "fengxueyong-cloud-dataservice.jar"]
+     fengxueyong-cloud-dataservice3:
        build:
          # Dokcerfile文件所在的位置
          context: dataservice
@@ -284,14 +284,14 @@
          - JAVA_OPTS=-Xmx2048M -Xms1024M
        networks:
          dfone_net:
-           ipv4_address: ${intple_cloud_dataservice_3:-124.81.64.42}
+           ipv4_address: ${fengxueyong_cloud_dataservice_3:-124.81.64.42}
        volumes:
          - /etc/localtime:/etc/localtime
-         - ./dataservice/target/intple-cloud-dataservice.jar:/home/intple/intple-cloud-dataservice.jar
-         - ./dataservice/target/dfone.lic:/home/intple/dfone.lic
+         - ./dataservice/target/fengxueyong-cloud-dataservice.jar:/home/fengxueyong/fengxueyong-cloud-dataservice.jar
+         - ./dataservice/target/dfone.lic:/home/fengxueyong/dfone.lic
        extra_hosts:
-         - intple-cloud-db:${db_address:-124.81.64.1}
-       command: ["java", "-Xmx2048M","-Xms1024M","-jar", "intple-cloud-dataservice.jar"]
+         - fengxueyong-cloud-db:${db_address:-124.81.64.1}
+       command: ["java", "-Xmx2048M","-Xms1024M","-jar", "fengxueyong-cloud-dataservice.jar"]
    networks:
      dfone_net:
        external: true
