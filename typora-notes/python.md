@@ -1034,3 +1034,44 @@ help(urllib.urlopen)
 
 
 
+package是包含多个package和模块的命名空间。他们是具有特殊要求的目录。
+
+Python中的每个package都是一个目录，这个目录必须包含一个特殊的文件：\__init__\.py。这个文件（可以为空），表明它所在的目录是一个Python的package。引入方式同模块。
+
+如果我们创建一个foo的目录（也就是package的name），然后我们就可以在这个package内创建一个叫bar的模块，然后我们在这个目录下面加一个\__init__.py的文件。
+
+为了使用bar，我们有如下两种方式引入：
+
+```python
+import foo.bar
+```
+
+或者：
+
+```python
+from foo import bar
+```
+
+在第一种方式，我们访问bar的时候，必须在前面加上foo前缀。在第二中方式，我们不需要这样，因为我们把bar引入了命名空间。\_\_init\_\_.py文件也可以确定这个package暴露了哪些API模块，其他模块就是内部的，通过复写\__all__变量:
+
+```python
+__init__.py:
+
+__all__ = ["bar"]
+```
+
+实例：
+
+```python
+import re
+
+# Your code goes here
+find_members = []
+for member in dir(re):
+    if "find" in member:
+        find_members.append(member)
+# 输出：['findall', 'finditer']
+print(sorted(find_members))
+```
+
+https://www.learnpython.org/en/Numpy_Arrays
