@@ -1075,3 +1075,85 @@ print(sorted(find_members))
 ```
 
 https://www.learnpython.org/en/Numpy_Arrays
+
+
+
+
+
+
+
+## pip && 安装
+
+```bash
+pip -V
+# 安装xxxpackage包的最新版本
+pip install xxxpackage
+# 安装版本未x.y.z的xxxpackage包
+pip install xxxpackage==x.y.z
+# 更新安装，原包存在的情况下可以通过这个更新包的版本
+pip install -U xxxpackage==x.y.z
+# 显示某个包下载的版本
+pip show xxxpackage
+# 卸载包
+pip uninstall xxxpackage
+# 等同于pip install xxx
+# python -m pip的意思就是使用你指定的python作为解释器来执行pip
+python -m pip install xxx
+
+# 从github上下载
+pip install git+https://github.com/pypa/sampleproject.git@main
+
+# 从发布文件下载
+python -m pip install sampleproject-1.0.tar.gz
+# 从wheel文件下载
+pip install sampleproject-1.0-py3-none-any.whl
+
+# 从requirments.txt中下载
+pip install -r requirements.txt
+# 更新一个包
+pip install --upgrade sampleproject
+# 或者
+pip install -U sampleproject
+
+# 卸载一个包
+pip uninstall sampleproject
+
+# 更新pip版本
+pip install --upgrade pip
+
+```
+
+### 安装包
+
+以后python -m  pip和pip通用
+
+```bash
+python -m pip install SomePackage            # latest version
+python -m pip install SomePackage==1.0.4     # specific version
+python -m pip install 'SomePackage>=1.0.4'     # minimum version
+```
+
+### 从wheels下载
+
+```bash
+pip install SomePackage-1.0-py2.py3-none-any.whl
+```
+
+### 卸载
+
+```bash
+pip uninstall SomePackage
+```
+
+### 查询下载信息
+
+```bash
+pip list
+
+# list outdated packages
+pip list --outdated
+
+# 查看torch版本
+pip show torch
+```
+
