@@ -1157,3 +1157,107 @@ pip list --outdated
 pip show torch
 ```
 
+
+
+
+
+## Python虚拟环境
+
+### 创建虚拟环境
+
+```bash
+# 创建一个虚拟环境，.venv是一个目录，也可以是其他目录，标准约定一般就叫venv或venv名字。
+python -m venv .venv
+```
+
+### 激活虚拟环境
+
+```bash
+
+source .venv/bin/activate
+(.venv) [root@host4181 vLLM]#
+
+```
+
+激活后，你会看到你的prompt前加了一个虚拟环境名称的抬头，告诉你现在是在.venv虚拟环境。
+
+### 退出虚拟环境
+
+```bash
+# 在某个虚拟环境下执行deactivate，即可退出。
+(.venv) [root@host4181 vLLM]#deactivate
+```
+
+### 删除虚拟环境
+
+如果deactivate退出了之后，可以删掉你创建的.venv目录，就能删除虚拟环境了
+
+
+
+## Python安装
+
+### Centos 7 安装Python
+
+安装前肯定要卸载掉原来已经安装的3.xxx版本，注意这里切记不要把系统自带的2.7版本的也卸载了，否则会导致yum不可用！！！！
+
+系统一般自带了一个python2版本，位于/usr/bin/python2，另外默认python的软连接也是指向这个python2的。
+
+![image-20241022165931313](C:\Users\intple\AppData\Roaming\Typora\typora-user-images\image-20241022165931313.png)
+
+安装后，我们要在/usr/bin/下面加一个python3.xxx，增加一个软链接python3，指向python3.xxx，再修改原来的python的软链接指向python3.
+
+### 安装过程
+
+假如以3.9.9版本为例子；
+
+1. 先把原来所有用软链接python的地方换成python2这个软链接吧，因为这个python安装之后要换成指向python3.xx的。
+
+   ![image-20241022170514434](C:\Users\intple\AppData\Roaming\Typora\typora-user-images\image-20241022170514434.png)
+
+   ![image-20241022170827600](C:\Users\intple\AppData\Roaming\Typora\typora-user-images\image-20241022170827600.png)
+
+   需要按照如上改两个地方的首行，将python的软链接改成python2.7的。
+
+2. yum安装相关依赖（这个网上的都有细微差别，要看具体的系统）
+
+   ```bash
+   yum -y install zlib-devel bzip2-devel openssl-devel ncurses-devel sqlite-devel readline-devel tk-devel libffi-devel gcc make
+   ```
+
+3. 解压并执行
+
+   ```bash
+   tar -zxvf Python-3.9.9.tgz
+   cd Python-3.9.9
+   # 将python3.9.9安装在/usr/local下
+   ./configure --prefix=/usr/local/python3.9.9
+   # make
+   make
+   # make all
+   make install
+   ```
+
+4. 将原先的python软链接备份
+
+   ```bash
+   mv /usr/bin/python /usr/bin/python.bak
+   ```
+
+5. 覆盖掉python链接，同时增加python3软链接
+
+   ```bash
+   ln -s /usr/local/python3.9.9/bin/python3.9 /usr/bin/python
+   ln -s /usr/local/python3.9.9/bin/pip3 /usr/bin/pip
+   # 测试
+   python -V
+   pip -V
+   # 加入path，在~/.bash_profile加入如下两行
+   # export PYTHON_HOME=/usr/local/python3.9.9
+   # export PATH=$PYTHON_HOME/bin:$PATH
+   
+   ```
+
+
+
+
+
